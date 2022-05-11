@@ -15,7 +15,7 @@ class GigController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['index','show']]);
+        $this->middleware('auth:api', ['except' => ['index','show','search']]);
     }
     /**
      * Display a listing of the resource.
@@ -25,6 +25,17 @@ class GigController extends Controller
     public function index()
     {
         return Giglist::all();
+    }
+
+    /**
+     * Search the specified product from storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getMyGigs()
+    {
+        $authenticatedUserInfo= $this->me();
+        return Giglist::where("gigCreatedBy","=",$authenticatedUserInfo->email)->get();
     }
 
     /**
@@ -72,7 +83,7 @@ class GigController extends Controller
      */
     public function show($id)
     {
-        //
+        return Giglist::find($id);
     }
 
     /**
@@ -84,7 +95,17 @@ class GigController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $authenticatedUserInfo= $this->me();
+        $gig= Giglist::where("gigCreatedBy","=",$authenticatedUserInfo->email)
+        ->where("id","=",$id)
+        ->get()->first();
+
+        if(!$gig){
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        //update method take in object
+        $gig -> update($request->all());
+        return $gig;
     }
 
     /**
@@ -95,7 +116,29 @@ class GigController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $authenticatedUserInfo= $this->me();
+
+        $gig=Giglist::where("gigCreatedBy","=",$authenticatedUserInfo->email)
+        ->where("id","=",$id)
+        ->get();
+        
+        return Giglist::destroy($id);
+        
+    }
+
+     /**
+     * Search the specified product from storage.
+     *
+     * @param  str  $params
+     * @return \Illuminate\Http\Response
+     */
+    public function search($params)
+    {
+        return Giglist::where("companyName","like","%".$params."%")
+        ->where("tags","like","%".$params."%")
+        ->where("jobTitle","like","%".$params."%")
+        ->where("jobLocation","like","%".$params."%")
+        ->get();
     }
 
     /**
