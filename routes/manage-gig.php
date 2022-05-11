@@ -10,9 +10,11 @@ Public Routes
 //Get All Gigs
 Route::get("/",[GigController::class,'index']);
 
+//Get Single gig
+Route::get("/show/{id}",[GigController::class,'show']);
 
-
-
+//Search Gig by companyName,tags,jobTitle,jobLocation
+Route::get("/search/{params}",[GigController::class,'search']);
 
 
 

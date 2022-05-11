@@ -135,9 +135,9 @@ class GigController extends Controller
     public function search($params)
     {
         return Giglist::where("companyName","like","%".$params."%")
-        ->where("tags","like","%".$params."%")
-        ->where("jobTitle","like","%".$params."%")
-        ->where("jobLocation","like","%".$params."%")
+        ->orWhere("tags","like","%".$params."%")
+        ->orWhere("jobTitle","like","%".$params."%")
+        ->orWhere("jobLocation","like","%".$params."%")
         ->get();
     }
 
