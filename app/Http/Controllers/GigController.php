@@ -94,18 +94,22 @@ class GigController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
+    {   
+        //Get Authenticated User info
         $authenticatedUserInfo= $this->me();
+        //See if the Gig Exits
         $gig= Giglist::where("gigCreatedBy","=",$authenticatedUserInfo->email)
         ->where("id","=",$id)
         ->get()->first();
 
-        if(!$gig){
+        if($gig){
+            //update method take in object
+            $gig -> update($request->all());
+            return $gig;
+        }else{
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        //update method take in object
-        $gig -> update($request->all());
-        return $gig;
+        
     }
 
     /**
@@ -120,9 +124,13 @@ class GigController extends Controller
 
         $gig=Giglist::where("gigCreatedBy","=",$authenticatedUserInfo->email)
         ->where("id","=",$id)
-        ->get();
-        
-        return Giglist::destroy($id);
+        ->get()->first();
+
+        if($gig){
+            return Giglist::destroy($id);
+        }else{
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         
     }
 

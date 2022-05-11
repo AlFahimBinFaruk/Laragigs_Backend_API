@@ -68,7 +68,7 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        return auth()->user();
     }
 
     /**
@@ -91,6 +91,37 @@ class AuthController extends Controller
     public function refresh()
     {
         return $this->respondWithToken(auth()->refresh());
+    }
+
+    /*******
+     * 
+     * Update Account Creds (username,password)
+     */
+    public function updateAccount(Request $request)
+    {
+         //get authenticated user info;
+         $authenticatedUserInfo= $this->me();
+         //see if we can found the user at out db
+         $user= User::find($authenticatedUserInfo->id);
+ 
+         if($user){
+             //see if user want to update email,we wont let user update email
+             if($request->name){
+                return response()->json(['error' => 'You Cannot Update Your Email.'], 404);
+             }
+             //update user
+             $user -> update($request->all());
+             //See if user want to update password
+            if($request->password){
+               User::where('id', $authenticatedUserInfo->id)
+              ->update(['password' => bcrypt($request->password)]);
+            }   
+            return $user;   
+                
+         }else{
+            return response()->json(['error' => 'You Are Unauthorized'], 401);
+         }
+
     }
 
     /**

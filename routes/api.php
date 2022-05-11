@@ -32,5 +32,7 @@ Route::group([
      Route::post('refresh', [AuthController::class,'refresh']);
      //Get user info based on Bearer Token (*************)
      Route::post('me', [AuthController::class,'me']);
+     //Update Account
+     Route::post("/update-account",[AuthController::class,'updateAccount']);
 
 });
